@@ -9,38 +9,38 @@ CA="ca.crt"
 TA="ta.key" 
  
 #Ask for a Client name 
-echo "Please enter an existing Client Name:"
+echo "Por favor ingrese un nombre de cliente existente:"
 read NAME 
  
  
 #1st Verify that client’s Public Key Exists 
 if [ ! -f $NAME$CRT ]; then 
- echo "[ERROR]: Client Public Key Certificate not found: $NAME$CRT" 
+ echo "[ERROR]: No se encontró el certificado de clave pública del cliente: $NAME$CRT"
  exit 
 fi 
-echo "Client’s cert found: $NAME$CR" 
+echo "Certificado del cliente encontrado: $NAME$CR"
  
  
 #Then, verify that there is a private key for that client 
 if [ ! -f $NAME$KEY ]; then 
- echo "[ERROR]: Client 3des Private Key not found: $NAME$KEY" 
+ echo "[ERROR]: No se encontró la clave privada del cliente 3des: $NAME$KEY"
  exit 
 fi 
-echo "Client’s Private Key found: $NAME$KEY"
+echo "Clave privada del cliente encontrada: $NAME$KEY"
  
 #Confirm the CA public key exists 
 if [ ! -f $CA ]; then 
- echo "[ERROR]: CA Public Key not found: $CA" 
+ echo "[ERROR]: No se encontró la clave pública de CA: $CA"
  exit 
 fi 
-echo "CA public Key found: $CA" 
+echo "Clave pública de CA encontrada: $CA"
  
 #Confirm the tls-auth ta key file exists 
 if [ ! -f $TA ]; then 
- echo "[ERROR]: tls-auth Key not found: $TA" 
+ echo "[ERROR]: No se encontró la clave tls-auth: $TA"
  exit 
 fi 
-echo "tls-auth Private Key found: $TA" 
+echo "Clave privada tls-auth encontrada: $TA"
  
 #Ready to make a new .opvn file - Start by populating with the 
 #default file 
@@ -66,4 +66,4 @@ echo "<tls-auth>" >> $NAME$FILEEXT
 cat $TA >> $NAME$FILEEXT 
 echo "</tls-auth>" >> $NAME$FILEEXT 
  
-echo "Done! $NAME$FILEEXT Successfully Created."
+echo "Hecho! $NAME$FILEEXT Creado exitosamente."

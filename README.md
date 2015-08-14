@@ -1,56 +1,56 @@
-# Raspberry Pi VPN Server
+# Servidor VPN para Raspberry Pi
 
-## Server Side Setup
+## Configuración del lado del servidor
 
-1. [Set up NOOBS and install Raspbian](https://www.raspberrypi.org/help/noobs-setup/). To make life easier, make sure to enable SSH by running `raspi-config` and then navigating to Advanced Options, SSH, then select "Enable".
+1. [Configurar NOOBS e instalar Raspbian](https://www.raspberrypi.org/help/noobs-setup/). Para facilitar la vida, asegúrese de habilitar SSH ejecutando `raspi-config` y luego navegando a Opciones avanzadas, SSH, luego seleccione "Habilitar".
 
-2. Update Raspberry Pi.
+2. Actualizar Raspberry Pi.
 
 		sudo apt-get update
 		sudo apt-get upgrade
 
-3. Install software.
+3. Instalar el software.
 
 		sudo apt-get install openvpn vim
 
-4. Start doing stuff as root user.
+4. Comience a realizar tareas como usuario root.
 
 		sudo su
 
-5. Copy OpenVPN's easy-rsa directory as template files (easy-rsa is for authorization to connect to VPN server).
+5. Copie el directorio easy-rsa de OpenVPN como archivos de plantilla (easy-rsa es para la autorización para conectarse al servidor VPN).
 		
 		cp –r /usr/share/doc/openvpn/examples/easy-rsa/2.0 /etc/openvpn/easy-rsa 
 
-6. Open `vars` file for editing. These are easy-rsa parameter settings.
+6. Abra el archivo `vars` para editarlo. Estos son los parámetros de Easy-Rsa.
 
 		vim /etc/openvpn/easy-rsa/vars
 
-7. Change the EASY_RSA variable to:
+7. Cambie la variable EASY_RSA a:
 
 		export EASY_RSA="/etc/openvpn/easy-rsa"
 
-8. Build CA Certificate and Root CA certificate. 
+8. Cree un certificado CA y un certificado CA raíz.
 
-	- Load `vars`.
+	- Cargar `vars`.
 
 			cd /etc/openvpn/easy-rsa
 			source ./vars
 
-	- **Careful here!** Now you'll remove any previous keys, if there are any. If you have keys you don’t want to remove in this folder (like you’re doing this tutorial a second time), skip this command. 
+   **¡Cuidado!** Ahora eliminarás todas las claves anteriores, si las hay. Si tienes claves que no quieres eliminar en esta carpeta (por ejemplo, si estás haciendo este tutorial por segunda vez), omite este comando.
 
 			./clean-all
 
-	- Build the certificate authority.
+	- Construir la autoridad de certificación.
 
 			./build-ca
 
-9. After `./build-ca`, the Raspberry Pi is going to prompt for a bunch of optional fields for you to fill out if you want to: Country Name, State or Province Name, Locality Name, Organization Name, Organizational Unit, Common Name, Name, and Email Address. If you don't care to fill out these fields, just hit “enter” each instance to have the Pi fill in the default value. Below is what it looks like:
+9. Después de `./build-ca`, la Raspberry Pi te solicitará que completes una serie de campos opcionales si lo deseas: nombre del país, nombre del estado o provincia, nombre de la localidad, nombre de la organización, unidad organizativa, nombre común, nombre y dirección de correo electrónico. Si no quieres completar estos campos, simplemente presiona "enter" en cada instancia para que la Pi complete el valor predeterminado. A continuación se muestra cómo se ve:
 
 		root@raspberrypivpn:/etc/openvpn/easy-rsa# ./build-ca
-		Generating a 1024 bit RSA private key
+		Generación de una clave privada RSA de 1024 bits
 		..........................++++++
 		......++++++
-		writing new private key to 'ca.key'
+		escribiendo nueva clave privada en 'ca.key'
 		-----
 		You are about to be asked to enter information that will be incorporated
 		into your certificate request.
@@ -172,7 +172,7 @@
 
 With the previous steps finished, you've got a functional VPN server ready on your Raspberry Pi. Keys have been created too, but clients still have no way to connect to the server. They will each need a configuration file with their key in order to connect. Also, at this point, you'll need to use a dynamic DNS service so that you can access your Raspberry Pi from outside the local network.
 
-1. Your public IP address can change, unless your ISP gives a static IP address. So, you'll need a dynamic DNS provider to provide a stable name that maps to your changing IP address (there will be code/cron job on the server that updates the dynamic DNS provider when the IP changes). A good, free dynamic DNS provider is Duck DNS at [www.duckdns.com](www.duckdns.com). Sign up on the website (asks you to use Facebook, Google, Twitter, or Reddit). You can then choose a subdomain (http://[YOUR_SUBDOMAIN].duckdns.com). Finally, click on the install tab, click on "pi" for the operating system option, and follow the instructions. The instructions creates a cron job that updates Duck DNS so that it knows what your public IP address is. It periodically checks the IP address and updates Duck DNS.
+1. Your public IP address can change, unless your ISP gives a static IP address. So, you'll need a dynamic DNS provider to provide a stable name that maps to your changing IP address (there will be code/cron job on the server that updates the dynamic DNS provider when the IP changes). A good, free dynamic DNS provider is Duck DNS at [www.duckdns.org](www.duckdns.org). Sign up on the website (asks you to use Facebook, Google, Twitter, or Reddit). You can then choose a subdomain (http://[YOUR_SUBDOMAIN].duckdns.org). Finally, click on the install tab, click on "pi" for the operating system option, and follow the instructions. The instructions creates a cron job that updates Duck DNS so that it knows what your public IP address is. It periodically checks the IP address and updates Duck DNS.
 
 2. Enter the router config (go to 192.168.1.1 or whatever your router is) and forward a port. You'll need to create the port forwarding rule, specifying your Raspberry Pi as the IP address to forward and then for the application to forward, select "Custom Port". Select "UDP" as the protocol, source ports as "Any", destination ports as "1194", forward to port as "Same as Incoming Port", schedule as "always", and WAN connection type as "All Broadband Devices". This makes it so that any traffic that hits the 1194 port (OpenVPN's official port number) will be sent to the Raspberry Pi (the VPN server).
 
@@ -185,7 +185,7 @@ With the previous steps finished, you've got a functional VPN server ready on yo
 		client
 		dev tun
 		proto udp
-		remote <INSERT YOUR DYNAMIC DNS ADDRESS> 1194
+		remote YOUR_SUBDOMAIN.duckdns.org 1194
 		resolv-retry infinite
 		nobind
 		persist-key
